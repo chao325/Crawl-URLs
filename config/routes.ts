@@ -1,4 +1,6 @@
-﻿export default [
+﻿import BasicLayout from '@/layouts/BasicLayout';
+
+export default [
   {
     path: '/user',
     layout: false,
@@ -36,11 +38,50 @@
       },
     ],
   },
+  // {
+  //   name: 'list.table-list',
+  //   icon: 'table',
+  //   path: '/list',
+  //   component: './TableList',
+  // },
   {
-    name: 'list.table-list',
-    icon: 'table',
-    path: '/list',
-    component: './TableList',
+    path: '/GetUrl',
+    name: '采集管理',
+    icon: 'IdcardOutlined',
+    access: 'GetUrl',
+    component: '../layouts/BasicLayout',
+    routes: [
+      {
+        path: '/GetUrl/index.jsx',
+        name: '百度采集',
+        access: 'GetUrlList',
+        icon: 'smile',
+        component: './GetUrl',
+      },
+    ],
+  },
+  {
+    path: '/SystemSettings',
+    name: '系统设置',
+    icon: 'IdcardOutlined',
+    access: 'System',
+    component: '../layouts/BasicLayout',
+    routes: [
+      {
+        path: '/SystemSettings/CookieSettings/index.jsx',
+        name: 'Cookie设置',
+        access: 'Systemset',
+        icon: 'smile',
+        component: './SystemSettings/CookieSettings/index.jsx',
+      },
+      {
+        path: '/SystemSettings/UsersSettings/index.jsx',
+        name: '其他设置',
+        access: 'Systemuser',
+        icon: 'smile',
+        component: './SystemSettings/UsersSettings/index.jsx',
+      },
+    ],
   },
   {
     path: '/',
