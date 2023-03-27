@@ -1,6 +1,4 @@
-﻿import BasicLayout from '@/layouts/BasicLayout';
-
-export default [
+﻿export default [
   {
     path: '/user',
     layout: false,
@@ -21,23 +19,23 @@ export default [
     icon: 'smile',
     component: './Welcome',
   },
-  {
-    path: '/admin',
-    name: 'admin',
-    icon: 'crown',
-    access: 'canAdmin',
-    routes: [
-      {
-        path: '/admin/sub-page',
-        name: 'sub-page',
-        icon: 'smile',
-        component: './Welcome',
-      },
-      {
-        component: './404',
-      },
-    ],
-  },
+  // {
+  //   path: '/admin',
+  //   name: 'admin',
+  //   icon: 'crown',
+  //   access: 'canAdmin',
+  //   routes: [
+  //     {
+  //       path: '/admin/sub-page',
+  //       name: 'sub-page',
+  //       icon: 'smile',
+  //       component: './Welcome',
+  //     },
+  //     {
+  //       component: './404',
+  //     },
+  //   ],
+  // },
   // {
   //   name: 'list.table-list',
   //   icon: 'table',
@@ -47,37 +45,46 @@ export default [
   {
     path: '/GetUrl',
     name: '采集管理',
-    icon: 'IdcardOutlined',
-    access: 'GetUrl',
+    icon: 'IeOutlined',
     component: '../layouts/BasicLayout',
     routes: [
       {
         path: '/GetUrl/index.jsx',
         name: '百度采集',
-        access: 'GetUrlList',
         icon: 'smile',
         component: './GetUrl',
       },
     ],
   },
   {
+    path: '/MySQLdata',
+    name: '数据汇总',
+    icon: 'AntCloudOutlined',
+    component: '../layouts/BasicLayout',
+    routes: [
+      {
+        path: '/MySQLdata/index.jsx',
+        name: '百度数据',
+        icon: 'crown',
+        component: './MySQLdata',
+      },
+    ],
+  },
+  {
     path: '/SystemSettings',
     name: '系统设置',
-    icon: 'IdcardOutlined',
-    access: 'System',
+    icon: 'SettingOutlined',
     component: '../layouts/BasicLayout',
     routes: [
       {
         path: '/SystemSettings/CookieSettings/index.jsx',
         name: 'Cookie设置',
-        access: 'Systemset',
         icon: 'smile',
         component: './SystemSettings/CookieSettings/index.jsx',
       },
       {
         path: '/SystemSettings/UsersSettings/index.jsx',
         name: '其他设置',
-        access: 'Systemuser',
         icon: 'smile',
         component: './SystemSettings/UsersSettings/index.jsx',
       },

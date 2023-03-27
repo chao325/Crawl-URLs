@@ -55,7 +55,7 @@ const GlobalHeaderRight: React.FC = () => {
         <QuestionCircleOutlined />
       </span>
       <Avatar />
-      <SelectLang className={styles.action} />
+      {/*注释掉语言选择，即不需要国际化支持 <SelectLang className={styles.action} /> */}
     </Space>
   );
 };

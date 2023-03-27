@@ -15,7 +15,7 @@ const Settings: LayoutSettings & {
   menu: {
     locale: false,
   },
-  title: 'Ant Design Pro',
+  title: 'eURLCloud',
   pwa: false,
   logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
   iconfontUrl: '',
