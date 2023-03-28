@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable, TableDropdown } from '@ant-design/pro-components';
-import { Button, Dropdown, Space, Tag, Modal, Select } from 'antd';
+import { Button, Dropdown, Space, Tag, Modal, Select, message } from 'antd';
 import { GetUrlList } from '@/serverAPI/url';
 
 export default (props) => {
@@ -58,6 +58,7 @@ export default (props) => {
       hideInTable: true,
       key: 'keyWord',
       dataIndex: 'keyWord',
+      placeholder: '请勿带有不必要的符号',
       formItemProps: {
         rules: [
           {
@@ -82,6 +83,7 @@ export default (props) => {
         ],
       },
       fieldProps: {
+        placeholder: '本机网络环境及数据重复度可能会影响到数据量',
         options: [
           {
             label: '200页',
@@ -136,6 +138,7 @@ export default (props) => {
       width: 200,
       title: '操作',
       valueType: 'option',
+
       key: 'option',
 
       render: (text, record, _, action) => [
@@ -150,7 +153,6 @@ export default (props) => {
     const new_ruls = url.replace(/^https?:\/\//, '');
     window.open(`https://www.aizhan.com/cha/${new_ruls}`);
   };
-  const tableListDataSource = [];
   return (
     <div>
       <ProTable
@@ -158,17 +160,21 @@ export default (props) => {
         options={false}
         columns={columns}
         actionRef={actionRef}
-        defaultData={defaultData}
         cardBordered
         // request={handeGetUrl}
         request={(params, sorter, filter) => {
           // 表单搜索项会从 params 传入，传递给后端接口。
           console.log(params, sorter, filter);
-          return {
-            data: [],
-            success: true,
-            total: tableListDataSource.length,
-          };
+          const { current, pageSize, keyWord, KeyPage } = params;
+          if (!keyWord || !KeyPage) {
+            return;
+          } else {
+            return {
+              data: defaultData,
+              success: true,
+              total: defaultData.length,
+            };
+          }
         }}
         rowKey="id"
         search={{
