@@ -5,6 +5,7 @@
  * email：zcsupercn@foxmail.com
  */
 
+import { message } from 'antd';
 import { request } from 'umi';
 
 /**
@@ -21,6 +22,7 @@ import { request } from 'umi';
  *   REDIRECT = 9, // 页面跳转，会跳转到 /exception 页面
  * }
  */
+const prefix = `${API_BASE}/`;
 
 function requestInterceptor(url, options) {
   const headers = options.headers || {};
@@ -28,7 +30,7 @@ function requestInterceptor(url, options) {
     ? { Authorization: localStorage.getItem('token') }
     : {};
 
-  const prefix = `${API_BASE}/api/admin`;
+  // const prefix = `${API_BASE}/`;
 
   return {
     url: `${prefix}${url}`,
@@ -45,8 +47,8 @@ function requestInterceptor(url, options) {
 export const requestConfig = {
   errorConfig: {
     adaptor: (resData, ctx) => {
+      console.log('-------------resDate', resData, ctx);
       const showError = ctx.req.options?.showType;
-
       return {
         ...resData,
         success: resData.code === 1000,
@@ -58,22 +60,25 @@ export const requestConfig = {
   requestInterceptors: [requestInterceptor],
 };
 
-export default (...args) => request(...args).then((r) => r.data);
+export default (...args) => request(...args).then((r) => r);
 
 export function queryTable(apiRequest) {
   return function (params) {
+    console.log('-----------params-----------', params);
+
     return apiRequest({
       ...params,
-      pageNum: params.current,
+      // pageNum: params.current,
     })
       .then((res) => {
+        console.log('----------------------', res);
         return {
-          data: res.records,
+          data: res,
           success: true,
-          total: res.total,
         };
       })
       .catch((err) => {
+        message.error('请求失败', err);
         return {
           success: false,
         };
