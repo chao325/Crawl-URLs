@@ -5,7 +5,11 @@ import request from '@/utils/request';
  * @param {*} data
  * @returns
  */
-export const GetUrlList = (params) => request('/getAddr/python', { params, method: 'post' });
+export const GetUrlList = (params) =>
+  request(`/site-site_api.html?token=q7aI2M68wjvwNshOqDf4MTBC`, {
+    params,
+    method: 'post',
+  });
 
 export const queryUrlInfo = (key, parmas) =>
   request(`/baidurank/siteinfos/${key}?domains=${parmas}`);

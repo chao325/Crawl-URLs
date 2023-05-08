@@ -7,8 +7,8 @@
  */
 export default {
   dev: {
-    '/getAddr/': {
-      target: 'http://localhost:8080',
+    '/site-site_api.html': {
+      target: 'https://we.lubida.com',
       changeOrigin: true,
       // pathRewrite: { '^': '' },
       pathRewrite: { '^': '' },

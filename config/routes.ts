@@ -50,9 +50,15 @@
     routes: [
       {
         path: '/GetUrl/index.jsx',
-        name: '百度采集',
+        name: '数据处理',
         icon: 'smile',
         component: './GetUrl',
+      },
+      {
+        path: '/GetUrl/edit.jsx',
+        name: '编辑',
+        hideInMenu: true,
+        component: './GetUrl/edit.jsx',
       },
     ],
   },
@@ -64,7 +70,7 @@
     routes: [
       {
         path: '/MySQLdata/index.jsx',
-        name: '百度数据',
+        name: '神马数据',
         icon: 'crown',
         component: './MySQLdata',
       },
