@@ -1,6 +1,6 @@
 import { ProFormText, ProFormTextArea, ProFormSelect } from '@ant-design/pro-form';
 import { ProForm } from '@ant-design/pro-components';
-import { Card, Form, message } from 'antd';
+import { Card, Form, message, Button } from 'antd';
 import { useState, useEffect, useRef } from 'react';
 import { GetUrlList } from '@/serverAPI/url';
 import { history } from 'umi';
@@ -62,10 +62,20 @@ export default (props) => {
         formRef={formRef}
         onFinish={onFinish}
         {...formItemLayout}
+        // submitter={{
+        //   searchConfig: {
+        //     submitText: '提交',
+        //     resetText: '重置',
+        //   },
+        // }}
         submitter={{
-          searchConfig: {
-            submitText: '提交',
-            resetText: '重置',
+          render: (props, doms) => {
+            return [
+              <Button htmlType="button" onClick={() => history.goBack()} key="edit">
+                返回
+              </Button>,
+              ...doms,
+            ];
           },
         }}
       >
@@ -73,6 +83,7 @@ export default (props) => {
         <ProFormText name="phone" label="手机号" width={300} />
         <ProFormText name="qq" label="QQ" width={300} />
         <ProFormText name="weixin" label="微信" width={300} />
+        <ProFormText name="other_contact" label="其他联系方式" width={300} />
         <ProFormTextArea name="other" label="备注" width={300} />
         <ProFormSelect
           width={300}

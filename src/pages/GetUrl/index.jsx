@@ -3,7 +3,8 @@ import { ProColumns } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
 import { Button, DatePicker, Space, Modal, Select, message, Table, Divider, Tag } from 'antd';
 import { useState, useEffect, useRef } from 'react';
-import { history } from 'umi';
+import { history, KeepAlive } from 'umi';
+import dayjs from 'dayjs';
 const { RangePicker } = DatePicker;
 //用户对应
 
@@ -58,30 +59,49 @@ const columns = [
     dataIndex: 'startTime',
     valueType: 'dateRange',
     hideInTable: true,
-    initialValue: [dayjs(), dayjs().add(1, 'day')],
+    initialValue: [
+      dayjs().subtract(1, 'day').format('YYYYMMDD'),
+      dayjs().add(1, 'day').format('YYYYMMDD'),
+    ],
   },
   {
     title: '百度PC',
     dataIndex: 'aizhan_pc',
     width: 100,
-    render: (text) => {
-      return <img src={`https://statics.aizhan.com/images/br/${text}.png`} />;
+    render: (text, record) => {
+      return (
+        <a target="_blank" href={`https://www.aizhan.com/cha/${record?.domain}`} rel="noreferrer">
+          <img src={`https://statics.aizhan.com/images/br/${text}.png`} />
+        </a>
+      );
     },
   },
   {
     title: '百度移动',
     dataIndex: 'aizhan_m',
     width: 100,
-    render: (text) => {
-      return <img src={`https://statics.aizhan.com/images/mbr/${text}.png`} />;
+    render: (text, record) => {
+      return (
+        <a target="_blank" href={`https://www.aizhan.com/cha/${record?.domain}`} rel="noreferrer">
+          <img src={`https://statics.aizhan.com/images/mbr/${text}.png`} />
+        </a>
+      );
     },
   },
   {
     title: '神马',
     dataIndex: 'aizhan_sm',
     width: 100,
-    render: (text) => {
-      return <img src={`https://statics.aizhan.com/images/sm/${text}.png`} />;
+    render: (text, record) => {
+      return (
+        <a
+          target="_blank"
+          href={`https://smrank.aizhan.com/mobile/${record?.domain}/`}
+          rel="noreferrer"
+        >
+          <img src={`https://statics.aizhan.com/images/sm/${text}.png`} />
+        </a>
+      );
     },
   },
   {
@@ -118,29 +138,25 @@ const columns = [
     search: false,
   },
   {
-    title: '第一跟踪人',
+    title: '跟踪人',
     dataIndex: 'uid',
     render: (text) => {
       return <span>{userId[text]}</span>;
     },
   },
-  {
-    title: '第一跟踪人',
-    dataIndex: 'uid_2nd',
-    search: false,
+  // {
+  //   title: '跟踪人',
+  //   dataIndex: 'uid_2nd',
+  //   search: false,
 
-    render: (text) => {
-      return <span>{userId[text]}</span>;
-    },
-  },
+  //   render: (text) => {
+  //     return <span>{userId[text]}</span>;
+  //   },
+  // },
   {
     title: '备注',
     dataIndex: 'other',
     search: false,
-
-    render: (text) => {
-      return <span>{userId[text]}</span>;
-    },
   },
   {
     title: '操作',
@@ -150,13 +166,15 @@ const columns = [
     render: (_, record) => (
       <Space size="middle">
         <a onClick={() => getUrlDetail(record.tid, record.domain)}> 编辑</a>
-        <a>刷新权重</a>
+        {/* <a>刷新权重</a> */}
       </Space>
     ),
   },
 ];
 
-export default () => {
+export default (props) => {
+  // const { location } = props;
+  // const { tid, domain } = location.query;
   const [loading, setLoading] = useState(false);
   const [tableListRow, setTableListRow] = useState({}); // 初次获取list
   const [selectedValue, setSelectedValue] = useState({ uid: 0, uid_2nd: 0 }); //跟踪人数据
@@ -164,14 +182,22 @@ export default () => {
   const [selectedRowInfo, setSelectedRowInfo] = useState([]); //多选的表项详细数据
   const ref = useRef();
 
-  const getTableListInfo = (page) => {
+  const getTableListInfo = (params, sorter) => {
+    console.log(params, sorter);
+    const { current, pageSize, startTime, ...res_data } = params;
     setLoading(true);
     return GetUrlList({
       write: 0,
-      data: { create_time: { '>': 20230503, '<': 20230507 } },
+      data: {
+        create_time: {
+          '>': dayjs(startTime[0]).format('YYYYMMDD'),
+          '<': dayjs(startTime[1]).format('YYYYMMDD'),
+        },
+        ...res_data,
+      },
       orderby: { create_time: -1 },
-      page: page?.current || 1,
-      pagesize: page?.pageSize || 30,
+      page: current || 1,
+      pagesize: pageSize || 30,
     })
       .then((result) => {
         // setSuccess_urlInfo(success);
@@ -179,7 +205,7 @@ export default () => {
         return {
           data: result.site,
           success: true,
-          total: result.total_pages,
+          total: result.total_pages * 30,
         };
       })
       .catch(function (e) {
@@ -248,7 +274,7 @@ export default () => {
         onCancel={() => setIsModalOpen(false)}
       >
         <Space wrap>
-          <p>第一跟踪人：</p>
+          <p>跟踪人：</p>
           <Select
             value={selectedValue.uid}
             style={{ width: 160 }}
@@ -265,7 +291,7 @@ export default () => {
             ]}
           />
         </Space>
-        <Space wrap>
+        {/* <Space wrap>
           <p>第二跟踪人：</p>
           <Select
             value={selectedValue.uid_2nd}
@@ -282,12 +308,13 @@ export default () => {
               { value: '9', label: 'jiang' },
             ]}
           />
-        </Space>
+        </Space> */}
       </Modal>
-
       <ProTable
+        keepAlive
         actionRef={ref}
         loading={loading}
+        revalidateOnFocus={false}
         columns={columns}
         rowSelection={rowSelection}
         tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
