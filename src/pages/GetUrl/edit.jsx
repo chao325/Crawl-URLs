@@ -1,13 +1,14 @@
 import { ProFormText, ProFormTextArea, ProFormSelect } from '@ant-design/pro-form';
-import { ProForm } from '@ant-design/pro-components';
-import { Card, Form, message, Button } from 'antd';
+import { ProForm, FooterToolbar } from '@ant-design/pro-components';
+import { Card, Form, message, Button, Space, Row, Col } from 'antd';
 import { useState, useEffect, useRef } from 'react';
 import { GetUrlList } from '@/serverAPI/url';
 import { history } from 'umi';
 
 export default (props) => {
-  const { location } = props;
-  const { tid, domain } = location.query;
+  const { editValue, funEven } = props;
+  console.log(props, props.editValue);
+  const { tid, domain } = editValue;
   const formItemLayout = { labelCol: { span: 8 }, wrapperCol: { span: 16 } };
   const [dispatch, setDispatch] = useState();
   const { form } = Form.useForm;
@@ -41,7 +42,7 @@ export default (props) => {
     })
       .then((result) => {
         message.success(`提交成功`);
-        history.goBack();
+        funEven();
       })
       .catch(function (e) {
         console.log('fetch fail', e);
@@ -57,46 +58,57 @@ export default (props) => {
   // }, [input]);
 
   return (
-    <Card>
-      <ProForm
-        formRef={formRef}
-        onFinish={onFinish}
-        {...formItemLayout}
-        // submitter={{
-        //   searchConfig: {
-        //     submitText: '提交',
-        //     resetText: '重置',
-        //   },
-        // }}
-        submitter={{
-          render: (props, doms) => {
-            return [
-              <Button htmlType="button" onClick={() => history.goBack()} key="edit">
-                返回
-              </Button>,
-              ...doms,
-            ];
-          },
-        }}
-      >
-        <ProFormText name="email" label="邮箱" width={300} />
-        <ProFormText name="phone" label="手机号" width={300} />
-        <ProFormText name="qq" label="QQ" width={300} />
-        <ProFormText name="weixin" label="微信" width={300} />
-        <ProFormText name="other_contact" label="其他联系方式" width={300} />
-        <ProFormTextArea name="other" label="备注" width={300} />
-        <ProFormSelect
-          width={300}
-          name="status"
-          label="域名状态"
-          options={[
-            { label: '正常', value: '0' },
-            { label: '已售', value: '1' },
-            { label: '不出', value: '2' },
-            { label: '跟进', value: '3' },
-          ]}
-        />
-      </ProForm>
-    </Card>
+    <ProForm
+      onFinish={onFinish}
+      onReset={() => {
+        return;
+      }}
+      submitter={{
+        searchConfig: {
+          submitText: '提交',
+          resetText: '重置',
+        },
+      }}
+    >
+      <ProForm.Group>
+        <ProForm.Item name="email" label="邮箱">
+          <ProFormText />
+        </ProForm.Item>
+        <ProForm.Item name="phone" label="手机号">
+          <ProFormText />
+        </ProForm.Item>
+      </ProForm.Group>
+
+      <ProForm.Group>
+        <ProForm.Item name="qq" label="QQ">
+          <ProFormText />
+        </ProForm.Item>
+        <ProForm.Item name="weixin" label="微信">
+          <ProFormText />
+        </ProForm.Item>
+      </ProForm.Group>
+
+      <ProForm.Group>
+        <ProForm.Item name="other_contact" label="其他联系方式">
+          <ProFormText />
+        </ProForm.Item>
+        <ProForm.Item name="status" label="域名状态">
+          <ProFormSelect
+            width={200}
+            options={[
+              { label: '正常', value: '0' },
+              { label: '已售', value: '1' },
+              { label: '不出', value: '2' },
+              { label: '跟进', value: '3' },
+              { label: '已经群发邮件', value: '4' },
+            ]}
+          />
+        </ProForm.Item>
+      </ProForm.Group>
+
+      <ProForm.Item name="other" label="备注">
+        <ProFormTextArea />
+      </ProForm.Item>
+    </ProForm>
   );
 };

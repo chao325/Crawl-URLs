@@ -55,10 +55,10 @@
         component: './GetUrl',
       },
       {
-        path: '/GetUrl/edit.jsx',
+        path: '/GetUrl/Edit.jsx',
         name: '编辑',
         hideInMenu: true,
-        component: './GetUrl/edit.jsx',
+        component: './GetUrl/Edit.jsx',
       },
     ],
   },

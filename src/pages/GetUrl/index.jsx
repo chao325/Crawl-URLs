@@ -5,6 +5,8 @@ import { Button, DatePicker, Space, Modal, Select, message, Table, Divider, Tag 
 import { useState, useEffect, useRef } from 'react';
 import { history, KeepAlive } from 'umi';
 import dayjs from 'dayjs';
+import Edit from './Edit.jsx';
+
 const { RangePicker } = DatePicker;
 //用户对应
 
@@ -25,152 +27,8 @@ const url_state = {
   1: { text: '已售', color: 'success' },
   2: { text: '不出', color: 'error' },
   3: { text: '跟进', color: 'processing' },
+  4: { text: '已经群发邮件', color: 'processing' },
 };
-const getUrlDetail = (tid, domain) => {
-  history.push(`./edit.jsx?tid=${tid}&domain=${domain}`);
-};
-
-const columns = [
-  {
-    title: '查站时间',
-    dataIndex: 'create_time',
-    search: false,
-  },
-  {
-    title: '域名 / 状态',
-    dataIndex: 'domain',
-    search: false,
-    width: 160,
-    render: (_, record) => {
-      return (
-        <Space size={[0, 8]} wrap>
-          <span style={{ marginRight: '5px' }}>{record.domain}</span>
-          <Tag
-            color={record?.status == null ? url_state[0].color : url_state[record?.status].color}
-          >
-            {record?.status == null ? url_state[0].text : url_state[record?.status].text}
-          </Tag>
-        </Space>
-      );
-    },
-  },
-  {
-    title: '日期范围',
-    dataIndex: 'startTime',
-    valueType: 'dateRange',
-    hideInTable: true,
-    initialValue: [
-      dayjs().subtract(1, 'day').format('YYYYMMDD'),
-      dayjs().add(1, 'day').format('YYYYMMDD'),
-    ],
-  },
-  {
-    title: '百度PC',
-    dataIndex: 'aizhan_pc',
-    width: 100,
-    render: (text, record) => {
-      return (
-        <a target="_blank" href={`https://www.aizhan.com/cha/${record?.domain}`} rel="noreferrer">
-          <img src={`https://statics.aizhan.com/images/br/${text}.png`} />
-        </a>
-      );
-    },
-  },
-  {
-    title: '百度移动',
-    dataIndex: 'aizhan_m',
-    width: 100,
-    render: (text, record) => {
-      return (
-        <a target="_blank" href={`https://www.aizhan.com/cha/${record?.domain}`} rel="noreferrer">
-          <img src={`https://statics.aizhan.com/images/mbr/${text}.png`} />
-        </a>
-      );
-    },
-  },
-  {
-    title: '神马',
-    dataIndex: 'aizhan_sm',
-    width: 100,
-    render: (text, record) => {
-      return (
-        <a
-          target="_blank"
-          href={`https://smrank.aizhan.com/mobile/${record?.domain}/`}
-          rel="noreferrer"
-        >
-          <img src={`https://statics.aizhan.com/images/sm/${text}.png`} />
-        </a>
-      );
-    },
-  },
-  {
-    title: '邮箱',
-    dataIndex: 'email',
-    search: false,
-  },
-  {
-    title: '联系方式',
-    dataIndex: 'update_time',
-    search: false,
-    render: (_, record) => {
-      return (
-        <div>
-          <div>
-            手机号：<span>{record.phone}</span>
-          </div>
-          <div>
-            QQ：<span>{record.qq}</span>
-          </div>
-          <div>
-            微信：<span>{record.weixin}</span>
-          </div>
-          <div>
-            其他联系方式：<span>{record.other_contact}</span>
-          </div>
-        </div>
-      );
-    },
-  },
-  {
-    title: '权重时间',
-    dataIndex: 'update_time',
-    search: false,
-  },
-  {
-    title: '跟踪人',
-    dataIndex: 'uid',
-    render: (text) => {
-      return <span>{userId[text]}</span>;
-    },
-  },
-  // {
-  //   title: '跟踪人',
-  //   dataIndex: 'uid_2nd',
-  //   search: false,
-
-  //   render: (text) => {
-  //     return <span>{userId[text]}</span>;
-  //   },
-  // },
-  {
-    title: '备注',
-    dataIndex: 'other',
-    search: false,
-  },
-  {
-    title: '操作',
-    key: 'action',
-    search: false,
-
-    render: (_, record) => (
-      <Space size="middle">
-        <a onClick={() => getUrlDetail(record.tid, record.domain)}> 编辑</a>
-        {/* <a>刷新权重</a> */}
-      </Space>
-    ),
-  },
-];
 
 export default (props) => {
   // const { location } = props;
@@ -180,7 +38,157 @@ export default (props) => {
   const [selectedValue, setSelectedValue] = useState({ uid: 0, uid_2nd: 0 }); //跟踪人数据
   const [isModalOpen, setIsModalOpen] = useState(false); // 模态框开启关闭
   const [selectedRowInfo, setSelectedRowInfo] = useState([]); //多选的表项详细数据
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // 编辑模态框开启关闭
+  const [editValue, setEditValue] = useState({}); // 编辑模态框开启关闭
+
   const ref = useRef();
+
+  const getUrlDetail = (tid, domain) => {
+    setIsEditModalOpen(true);
+    setEditValue({ tid: tid, domain: domain });
+    // history.push(`./Edit.jsx?tid=${tid}&domain=${domain}`);
+  };
+
+  const columns = [
+    {
+      title: '查站时间',
+      dataIndex: 'create_time',
+      search: false,
+    },
+    {
+      title: '域名 / 状态',
+      dataIndex: 'domain',
+      search: false,
+      width: 160,
+      render: (_, record) => {
+        return (
+          <Space size={[0, 8]} wrap>
+            <span style={{ marginRight: '5px' }}>{record.domain}</span>
+            <Tag
+              color={record?.status == null ? url_state[0].color : url_state[record?.status].color}
+            >
+              {record?.status == null ? url_state[0].text : url_state[record?.status].text}
+            </Tag>
+          </Space>
+        );
+      },
+    },
+    {
+      title: '日期范围',
+      dataIndex: 'startTime',
+      valueType: 'dateRange',
+      hideInTable: true,
+      initialValue: [
+        dayjs().subtract(1, 'day').format('YYYYMMDD'),
+        dayjs().add(1, 'day').format('YYYYMMDD'),
+      ],
+    },
+    {
+      title: '百度PC',
+      dataIndex: 'aizhan_pc',
+      width: 100,
+      render: (text, record) => {
+        return (
+          <a target="_blank" href={`https://www.aizhan.com/cha/${record?.domain}`} rel="noreferrer">
+            <img src={`https://statics.aizhan.com/images/br/${text}.png`} />
+          </a>
+        );
+      },
+    },
+    {
+      title: '百度移动',
+      dataIndex: 'aizhan_m',
+      width: 100,
+      render: (text, record) => {
+        return (
+          <a target="_blank" href={`https://www.aizhan.com/cha/${record?.domain}`} rel="noreferrer">
+            <img src={`https://statics.aizhan.com/images/mbr/${text}.png`} />
+          </a>
+        );
+      },
+    },
+    {
+      title: '神马',
+      dataIndex: 'aizhan_sm',
+      width: 100,
+      render: (text, record) => {
+        return (
+          <a
+            target="_blank"
+            href={`https://smrank.aizhan.com/mobile/${record?.domain}/`}
+            rel="noreferrer"
+          >
+            <img src={`https://statics.aizhan.com/images/sm/${text}.png`} />
+          </a>
+        );
+      },
+    },
+    {
+      title: '邮箱',
+      dataIndex: 'email',
+      search: false,
+    },
+    {
+      title: '联系方式',
+      dataIndex: 'update_time',
+      search: false,
+      render: (_, record) => {
+        return (
+          <div>
+            <div>
+              手机号：<span>{record.phone}</span>
+            </div>
+            <div>
+              QQ：<span>{record.qq}</span>
+            </div>
+            <div>
+              微信：<span>{record.weixin}</span>
+            </div>
+            <div>
+              其他联系方式：<span>{record.other_contact}</span>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: '权重时间',
+      dataIndex: 'update_time',
+      search: false,
+    },
+    {
+      title: '跟踪人',
+      dataIndex: 'uid',
+      render: (text) => {
+        return <span>{userId[text]}</span>;
+      },
+    },
+    // {
+    //   title: '跟踪人',
+    //   dataIndex: 'uid_2nd',
+    //   search: false,
+
+    //   render: (text) => {
+    //     return <span>{userId[text]}</span>;
+    //   },
+    // },
+    {
+      title: '备注',
+      dataIndex: 'other',
+      search: false,
+    },
+    {
+      title: '操作',
+      key: 'action',
+      search: false,
+
+      render: (_, record) => (
+        <Space size="middle">
+          <a onClick={() => getUrlDetail(record.tid, record.domain)}> 编辑</a>
+        </Space>
+      ),
+    },
+  ];
 
   const getTableListInfo = (params, sorter) => {
     console.log(params, sorter);
@@ -245,28 +253,18 @@ export default (props) => {
   const addUser = () => {
     setSelectedValue({ uid: selectedRowInfo[0]?.uid, uid_2nd: selectedRowInfo[0]?.uid_2nd });
     setIsModalOpen(true);
-    // GetUrlList({
-    //   write: 0,
-    //   data: { tid: selectedRowInfo[0]?.tid },
-    // })
-    //   .then((result) => {
-    //     // setSuccess_urlInfo(success);
-    //     // console.log(result);
-    //     const { site } = result;
-    //     const UrlInfo = site[0];
-    //     setWangzhanInfo(UrlInfo);
-    //     setSelectedValue({ uid: selectedRowInfo[0]?.uid, uid_2nd: selectedRowInfo[0]?.uid_2nd });
-    //   })
-    //   .catch(function (e) {
-    //     console.log('fetch fail', e);
-    //   })
-    //   .finally((r) => {
-    //     console.log('fetch fail', r);
-    //   });
+  };
+
+  const IsEditModalOpen = () => {
+    setIsEditModalOpen(false);
+    ref.current.reload();
   };
 
   return (
     <>
+      <Modal footer={null} title="设置网站信息" open={isEditModalOpen} onCancel={IsEditModalOpen}>
+        <Edit editValue={editValue} funEven={IsEditModalOpen} />
+      </Modal>
       <Modal
         title="设置跟踪人"
         open={isModalOpen}
