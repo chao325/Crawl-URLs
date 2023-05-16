@@ -139,9 +139,9 @@ export default (props) => {
         setLoading(false);
       });
   };
-  useEffect(() => {
-    getTableListInfo();
-  }, []);
+  // useEffect(() => {
+  //   getTableListInfo();
+  // }, []);
   const handleOk = () => {
     setIsModalOpen(false);
     console.log(selectedValue);
@@ -202,7 +202,8 @@ export default (props) => {
 
   return (
     <div>
-      <Card>
+      test
+      {/* <Card>
         <Modal
           title="Basic Modal"
           open={isModalOpen}
@@ -263,7 +264,7 @@ export default (props) => {
           pagination={{ total: tableListRow?.total_pages * 30, pageSize: 30 }}
           dataSource={tableListRow?.site}
         />
-      </Card>
+      </Card> */}
     </div>
   );
 };

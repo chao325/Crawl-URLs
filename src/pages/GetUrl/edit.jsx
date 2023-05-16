@@ -14,24 +14,25 @@ export default (props) => {
   const { form } = Form.useForm;
   const formRef = useRef();
   useEffect(() => {
-    GetUrlList({
-      write: 0,
-      data: { tid: tid },
-    })
-      .then((res) => {
-        setDispatch(res);
-        const data = res?.site[0];
-        console.log(data);
+    formRef?.current?.setFieldsValue(editValue);
+    // GetUrlList({
+    //   write: 0,
+    //   data: { tid: tid },
+    // })
+    //   .then((res) => {
+    //     setDispatch(res);
+    //     const data = res?.site[0];
+    //     console.log(data);
 
-        formRef?.current?.setFieldsValue(data);
-      })
-      .catch(function (e) {
-        console.log('fetch fail', e);
-      })
-      .finally((r) => {
-        console.log('fetch fail', r);
-      });
-  }, [tid]);
+    //     formRef?.current?.setFieldsValue(editValue);
+    //   })
+    //   .catch(function (e) {
+    //     console.log('fetch fail', e);
+    //   })
+    //   .finally((r) => {
+    //     console.log('fetch fail', r);
+    //   });
+  }, [editValue]);
   const onFinish = (values) => {
     console.log('Received values of form:', values);
     // 在这里处理表单数据
@@ -59,6 +60,7 @@ export default (props) => {
 
   return (
     <ProForm
+      formRef={formRef}
       onFinish={onFinish}
       onReset={() => {
         return;

@@ -1,13 +1,26 @@
 import { GetUrlList } from '@/serverAPI/url';
 import { ProColumns } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import { Button, DatePicker, Space, Modal, Select, message, Table, Divider, Tag } from 'antd';
+import {
+  Button,
+  DatePicker,
+  Space,
+  Modal,
+  Select,
+  message,
+  Table,
+  Divider,
+  Tag,
+  Input,
+} from 'antd';
 import { useState, useEffect, useRef } from 'react';
 import { history, KeepAlive } from 'umi';
 import dayjs from 'dayjs';
+import SelectInput from '@/components/SelectInput/index.jsx';
 import Edit from './Edit.jsx';
 
 const { RangePicker } = DatePicker;
+const { Search } = Input;
 //用户对应
 
 const userId = {
@@ -22,6 +35,7 @@ const userId = {
   9: 'jiang',
 };
 //域名状态
+
 const url_state = {
   0: { text: '正常', color: 'default' },
   1: { text: '已售', color: 'success' },
@@ -30,6 +44,20 @@ const url_state = {
   4: { text: '已经群发邮件', color: 'processing' },
 };
 
+const options = [
+  {
+    value: '=',
+    label: '等于 =',
+  },
+  {
+    value: '>',
+    label: '大于 >',
+  },
+  {
+    value: '<',
+    label: '小于 <',
+  },
+];
 export default (props) => {
   // const { location } = props;
   // const { tid, domain } = location.query;
@@ -37,15 +65,17 @@ export default (props) => {
   const [tableListRow, setTableListRow] = useState({}); // 初次获取list
   const [selectedValue, setSelectedValue] = useState({ uid: 0, uid_2nd: 0 }); //跟踪人数据
   const [isModalOpen, setIsModalOpen] = useState(false); // 模态框开启关闭
+  const [funcitonAdd, setFuncitonAdd] = useState(); // 取消多选
   const [selectedRowInfo, setSelectedRowInfo] = useState([]); //多选的表项详细数据
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // 编辑模态框开启关闭
   const [editValue, setEditValue] = useState({}); // 编辑模态框开启关闭
+  const [selectType, setSelectType] = useState('='); // 编辑模态框开启关闭
 
   const ref = useRef();
 
-  const getUrlDetail = (tid, domain) => {
+  const getUrlDetail = (res) => {
     setIsEditModalOpen(true);
-    setEditValue({ tid: tid, domain: domain });
+    setEditValue(res);
     // history.push(`./Edit.jsx?tid=${tid}&domain=${domain}`);
   };
 
@@ -54,16 +84,26 @@ export default (props) => {
       title: '查站时间',
       dataIndex: 'create_time',
       search: false,
+      width: 160,
     },
     {
       title: '域名 / 状态',
       dataIndex: 'domain',
       search: false,
-      width: 160,
+      width: 200,
       render: (_, record) => {
         return (
           <Space size={[0, 8]} wrap>
-            <span style={{ marginRight: '5px' }}>{record.domain}</span>
+            <Button
+              style={{ color: '#1890ff' }}
+              type="text"
+              onClick={() => {
+                addUser(record);
+              }}
+              key={record?.tid}
+            >
+              {record.domain}
+            </Button>
             <Tag
               color={record?.status == null ? url_state[0].color : url_state[record?.status].color}
             >
@@ -84,49 +124,215 @@ export default (props) => {
       ],
     },
     {
-      title: '百度PC',
-      dataIndex: 'aizhan_pc',
+      title: '常用权重',
+      dataIndex: 'aizhan_sm',
       width: 100,
+      search: false,
       render: (text, record) => {
         return (
-          <a target="_blank" href={`https://www.aizhan.com/cha/${record?.domain}`} rel="noreferrer">
-            <img src={`https://statics.aizhan.com/images/br/${text}.png`} />
-          </a>
+          <>
+            <a
+              target="_blank"
+              href={`https://www.aizhan.com/cha/${record?.domain}`}
+              rel="noreferrer"
+            >
+              <img src={`https://statics.aizhan.com/images/br/${record?.aizhan_pc}.png`} />
+            </a>
+
+            <a
+              target="_blank"
+              href={`https://www.aizhan.com/cha/${record?.domain}`}
+              rel="noreferrer"
+            >
+              <img src={`https://statics.aizhan.com/images/mbr/${record?.aizhan_m}.png`} />
+            </a>
+            <a
+              target="_blank"
+              href={`https://smrank.aizhan.com/mobile/${record?.domain}/`}
+              rel="noreferrer"
+            >
+              <img src={`https://statics.aizhan.com/images/sm/${record?.aizhan_sm}.png`} />
+            </a>
+          </>
         );
+      },
+    },
+    {
+      title: '百度PC',
+      dataIndex: 'aizhan_pc',
+      hideInTable: true,
+      search: {
+        transform: (value, key) => ({
+          [key]: { [selectType]: value },
+        }),
+      },
+      renderFormItem: (_, { type, defaultRender, formItemProps, fieldProps, ...rest }, form) => {
+        if (type === 'form') {
+          return null;
+        }
+        const status = form.getFieldValue('state');
+
+        if (status !== 'open') {
+          return (
+            // value 和 onchange 会通过 form 自动注入。
+            <Space.Compact>
+              <Select
+                defaultValue="="
+                onChange={(res) => {
+                  setSelectType(res);
+                }}
+                options={options}
+              />
+              <Input />
+            </Space.Compact>
+          );
+        }
+        return defaultRender(_);
       },
     },
     {
       title: '百度移动',
       dataIndex: 'aizhan_m',
-      width: 100,
-      render: (text, record) => {
-        return (
-          <a target="_blank" href={`https://www.aizhan.com/cha/${record?.domain}`} rel="noreferrer">
-            <img src={`https://statics.aizhan.com/images/mbr/${text}.png`} />
-          </a>
-        );
+      hideInTable: true,
+      search: {
+        transform: (value, key) => ({
+          [key]: { [selectType]: value },
+        }),
+      },
+      renderFormItem: (_, { type, defaultRender, formItemProps, fieldProps, ...rest }, form) => {
+        if (type === 'form') {
+          return null;
+        }
+        const status = form.getFieldValue('state');
+
+        if (status !== 'open') {
+          return (
+            // value 和 onchange 会通过 form 自动注入。
+            <Space.Compact>
+              <Select
+                defaultValue="="
+                onChange={(res) => {
+                  setSelectType(res);
+                }}
+                options={options}
+              />
+              <Input />
+            </Space.Compact>
+          );
+        }
+        return defaultRender(_);
+      },
+    },
+    // {
+    //   title: '神马',
+    //   dataIndex: 'aizhan_sm',
+    //   width: 100,
+    //   render: (text, record) => {
+    //     return (
+    //       <a
+    //         target="_blank"
+    //         href={`https://smrank.aizhan.com/mobile/${record?.domain}/`}
+    //         rel="noreferrer"
+    //       >
+    //         <img src={`https://statics.aizhan.com/images/sm/${text}.png`} />
+    //       </a>
+    //     );
+    //   },
+    // },
+    {
+      title: '神马移动',
+      dataIndex: 'aizhan_sm',
+      hideInTable: true,
+      search: {
+        transform: (value, key) => ({
+          [key]: { [selectType]: value || '2' },
+        }),
+      },
+      renderFormItem: (_, { type, defaultRender, formItemProps, fieldProps, ...rest }, form) => {
+        if (type === 'form') {
+          return null;
+        }
+        const status = form.getFieldValue('state');
+
+        if (status !== 'open') {
+          return (
+            // value 和 onchange 会通过 form 自动注入。
+            <Space.Compact>
+              <Select
+                defaultValue="="
+                onChange={(res) => {
+                  setSelectType(res);
+                }}
+                options={options}
+              />
+              <Input />
+            </Space.Compact>
+          );
+        }
+        return defaultRender(_);
       },
     },
     {
-      title: '神马',
-      dataIndex: 'aizhan_sm',
+      title: '360权重',
+      dataIndex: 'aizhan_360',
       width: 100,
       render: (text, record) => {
         return (
-          <a
-            target="_blank"
-            href={`https://smrank.aizhan.com/mobile/${record?.domain}/`}
-            rel="noreferrer"
-          >
-            <img src={`https://statics.aizhan.com/images/sm/${text}.png`} />
-          </a>
+          <>
+            <a
+              target="_blank"
+              href={`https://sorank.aizhan.com/mobile/${record?.domain}/`}
+              rel="noreferrer"
+              title="360PC"
+            >
+              <img src={`https://statics.aizhan.com/images/360/${record?.aizhan_360}.png`} />
+            </a>
+            <a
+              target="_blank"
+              href={`https://sorank.aizhan.com/mobile/${record?.domain}/`}
+              rel="noreferrer"
+              title="360移动"
+            >
+              <img src={`https://statics.aizhan.com/images/m360/${record?.aizhan_m_360}.png`} />
+            </a>
+          </>
         );
+      },
+      search: {
+        transform: (value, key) => ({
+          [key]: { [selectType]: value },
+        }),
+      },
+      renderFormItem: (_, { type, defaultRender, formItemProps, fieldProps, ...rest }, form) => {
+        if (type === 'form') {
+          return null;
+        }
+        const status = form.getFieldValue('state');
+
+        if (status !== 'open') {
+          return (
+            // value 和 onchange 会通过 form 自动注入。
+            // <SelectInput {...fieldProps} />
+            <Space.Compact>
+              <Select
+                defaultValue="="
+                onChange={(res) => {
+                  setSelectType(res);
+                }}
+                options={options}
+              />
+              <Input />
+            </Space.Compact>
+          );
+        }
+        return defaultRender(_);
       },
     },
     {
       title: '邮箱',
       dataIndex: 'email',
       search: false,
+      width: 160,
     },
     {
       title: '联系方式',
@@ -184,7 +390,8 @@ export default (props) => {
 
       render: (_, record) => (
         <Space size="middle">
-          <a onClick={() => getUrlDetail(record.tid, record.domain)}> 编辑</a>
+          <a onClick={() => getUrlDetail(record)}>编辑</a>
+          {/* <a onClick={addUser}>设置跟踪人</a> */}
         </Space>
       ),
     },
@@ -203,7 +410,7 @@ export default (props) => {
         },
         ...res_data,
       },
-      orderby: { create_time: -1 },
+      // orderby: { create_time: -1 },
       page: current || 1,
       pagesize: pageSize || 30,
     })
@@ -226,32 +433,56 @@ export default (props) => {
 
   const handleOk = () => {
     setIsModalOpen(false);
-    GetUrlList({
-      write: 1,
-      data: { uid: selectedValue.uid, uid_2nd: selectedValue.uid_2nd },
-      domain: selectedRowInfo[0]?.domain,
-    })
-      .then((result) => {
-        message.info(`跟踪人设置成功`);
-        // 刷新
-        ref.current.reload();
+
+    if (selectedRowInfo.length > 0) {
+      for (let i = 0; i < selectedRowInfo.length; i++) {
+        GetUrlList({
+          write: 1,
+          data: { uid: selectedValue.uid, uid_2nd: selectedValue.uid_2nd },
+          domain: selectedRowInfo[i]?.domain,
+        })
+          .catch(function (e) {
+            console.log('fetch fail', e);
+          })
+          .finally((r) => {
+            setLoading(false);
+          });
+        // 使用 url 去调用接口
+      }
+      message.info(`跟踪人设置成功`);
+      ref.current.reload();
+      setSelectedRowInfo([]);
+    } else {
+      GetUrlList({
+        write: 1,
+        data: { uid: selectedValue.uid, uid_2nd: selectedValue.uid_2nd },
+        domain: selectedRowInfo[0]?.domain,
       })
-      .catch(function (e) {
-        console.log('fetch fail', e);
-      })
-      .finally((r) => {
-        setLoading(false);
-      });
+        .then((result) => {
+          message.info(`跟踪人设置成功`);
+          // 刷新
+          ref.current.reload();
+        })
+        .catch(function (e) {
+          console.log('fetch fail', e);
+        })
+        .finally((r) => {
+          setLoading(false);
+        });
+    }
   };
   const onSelectChange = (_, selectedRows) => {
     setSelectedRowInfo(selectedRows);
+    console.log(selectedRows);
   };
   const rowSelection = {
     selectedRowInfo,
     onChange: onSelectChange,
   };
-  const addUser = () => {
-    setSelectedValue({ uid: selectedRowInfo[0]?.uid, uid_2nd: selectedRowInfo[0]?.uid_2nd });
+
+  const addUser = (res) => {
+    setSelectedRowInfo([res]);
+    setSelectedValue({ uid: res?.uid, uid_2nd: res?.uid_2nd });
     setIsModalOpen(true);
   };
 
@@ -272,12 +503,13 @@ export default (props) => {
         onCancel={() => setIsModalOpen(false)}
       >
         <Space wrap>
-          <p>跟踪人：</p>
+          <p style={{ margin: '0 auto' }}>跟踪人：</p>
           <Select
             value={selectedValue.uid}
             style={{ width: 160 }}
             onChange={(value) => setSelectedValue({ uid: value, uid_2nd: selectedValue.uid_2nd })}
             options={[
+              { value: '0', label: '取消跟踪人' },
               { value: '2', label: '阿图' },
               { value: '3', label: 'uny' },
               { value: '4', label: '小雪' },
@@ -309,6 +541,15 @@ export default (props) => {
         </Space> */}
       </Modal>
       <ProTable
+        onRow={(res, prs) => {
+          if (res?.uid != 0) {
+            return {
+              style: {
+                background: '#DDF6E8',
+              },
+            };
+          }
+        }}
         keepAlive
         actionRef={ref}
         loading={loading}
@@ -329,10 +570,20 @@ export default (props) => {
             </Space>
           );
         }}
-        tableAlertOptionRender={() => {
+        tableAlertOptionRender={({ res, e, onCleanSelected }) => {
           return (
             <Space size={16}>
-              <Button type="primary" onClick={addUser} loading={loading}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  setIsModalOpen(true);
+                  setFuncitonAdd(() => {
+                    onCleanSelected;
+                  });
+                  console.log(onCleanSelected);
+                }}
+                loading={loading}
+              >
                 添加跟踪人
               </Button>
             </Space>
