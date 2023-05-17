@@ -72,7 +72,10 @@ export default (props) => {
   const [selectedRowInfo, setSelectedRowInfo] = useState([]); //多选的表项详细数据
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // 编辑模态框开启关闭
   const [editValue, setEditValue] = useState({}); // 编辑模态框开启关闭
-  const [selectType, setSelectType] = useState('='); // 编辑模态框开启关闭
+  const [selectTypeBaidu, setSelectTypeBaidu] = useState('='); // 编辑模态框开启关闭 baiduPC
+  const [selectTypemBaidu, setSelectTypemBaidu] = useState('='); // 编辑模态框开启关闭 mbaidu
+  const [selectTypeSM, setSelectTypeSM] = useState('='); // 编辑模态框开启关闭 shenma
+  const [selectType360, setSelectType360] = useState('='); // 编辑模态框开启关闭 360PC
 
   const ref = useRef();
 
@@ -199,7 +202,7 @@ export default (props) => {
       hideInTable: true,
       search: {
         transform: (value, key) => ({
-          [key]: { [selectType]: value },
+          [key]: { [selectTypeBaidu]: value },
         }),
       },
       renderFormItem: (_, { type, defaultRender, formItemProps, fieldProps, ...rest }, form) => {
@@ -215,7 +218,7 @@ export default (props) => {
               <Select
                 defaultValue="="
                 onChange={(res) => {
-                  setSelectType(res);
+                  setSelectTypeBaidu(res);
                 }}
                 options={options}
               />
@@ -227,12 +230,13 @@ export default (props) => {
       },
     },
     {
+      //80+50+100+300+100+100+100
       title: '百度移动',
       dataIndex: 'aizhan_m',
       hideInTable: true,
       search: {
         transform: (value, key) => ({
-          [key]: { [selectType]: value },
+          [key]: { [selectTypemBaidu]: value },
         }),
       },
       renderFormItem: (_, { type, defaultRender, formItemProps, fieldProps, ...rest }, form) => {
@@ -248,7 +252,7 @@ export default (props) => {
               <Select
                 defaultValue="="
                 onChange={(res) => {
-                  setSelectType(res);
+                  setSelectTypemBaidu(res);
                 }}
                 options={options}
               />
@@ -281,7 +285,7 @@ export default (props) => {
       hideInTable: true,
       search: {
         transform: (value, key) => ({
-          [key]: { [selectType]: value },
+          [key]: { [selectTypeSM]: value },
         }),
       },
       renderFormItem: (_, { type, defaultRender, formItemProps, fieldProps, ...rest }, form) => {
@@ -297,7 +301,7 @@ export default (props) => {
               <Select
                 defaultValue="="
                 onChange={(res) => {
-                  setSelectType(res);
+                  setSelectTypeSM(res);
                 }}
                 options={options}
               />
@@ -336,7 +340,7 @@ export default (props) => {
       },
       search: {
         transform: (value, key) => ({
-          [key]: { [selectType]: value },
+          [key]: { [selectType360]: value },
         }),
       },
       renderFormItem: (_, { type, defaultRender, formItemProps, fieldProps, ...rest }, form) => {
@@ -353,7 +357,7 @@ export default (props) => {
               <Select
                 defaultValue="="
                 onChange={(res) => {
-                  setSelectType(res);
+                  setSelectType360(res);
                 }}
                 options={options}
               />
