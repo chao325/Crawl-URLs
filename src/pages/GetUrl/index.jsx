@@ -17,6 +17,9 @@ import { useState, useEffect, useRef } from 'react';
 import { history, KeepAlive } from 'umi';
 import dayjs from 'dayjs';
 import SelectInput from '@/components/SelectInput/index.jsx';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
+
 import Edit from './Edit.jsx';
 
 const { RangePicker } = DatePicker;
@@ -72,6 +75,39 @@ export default (props) => {
   const [selectType, setSelectType] = useState('='); // 编辑模态框开启关闭
 
   const ref = useRef();
+
+  const exportToExcel = () => {
+    const data = [
+      ['域名', '百度PC', '百度移动', '神马权重', '360PC', '360移动', '入库时间'],
+      ...tableListRow?.site.map((obj) => [
+        obj.domain,
+        obj.aizhan_pc,
+        obj.aizhan_m,
+        obj.aizhan_sm,
+        obj.aizhan_360,
+        obj.aizhan_m_360,
+        obj.create_time,
+      ]),
+    ];
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    const now = new Date();
+    const month = now.getMonth() + 1; // 月份从0开始计数，所以需要加1
+    const day = now.getDate();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+
+    // 使用 padStart() 方法在小时、分钟和秒钟数字前面添加零以确保它们始终有两个数字
+    const formattedTime = `${month.toString().padStart(2, '0')} ${day
+      .toString()
+      .padStart(2, '0')} ${hours.toString().padStart(2, '0')}${minutes
+      .toString()
+      .padStart(2, '0')}${seconds.toString().padStart(2, '0')}`;
+
+    XLSX.writeFile(wb, `${formattedTime}导出第${tableListRow?.page}页面数据.xlsx`);
+  };
 
   const getUrlDetail = (res) => {
     setIsEditModalOpen(true);
@@ -245,7 +281,7 @@ export default (props) => {
       hideInTable: true,
       search: {
         transform: (value, key) => ({
-          [key]: { [selectType]: value || '2' },
+          [key]: { [selectType]: value },
         }),
       },
       renderFormItem: (_, { type, defaultRender, formItemProps, fieldProps, ...rest }, form) => {
@@ -540,6 +576,7 @@ export default (props) => {
           />
         </Space> */}
       </Modal>
+      <Button onClick={exportToExcel}>导出表格</Button>
       <ProTable
         onRow={(res, prs) => {
           if (res?.uid != 0) {
