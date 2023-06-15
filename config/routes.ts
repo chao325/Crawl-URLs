@@ -43,6 +43,20 @@
   //   component: './TableList',
   // },
   {
+    path: '/MyUrl',
+    name: '我的域名',
+    icon: 'UserOutlined',
+    component: '../layouts/BasicLayout',
+    routes: [
+      {
+        path: '/MyUrl/index.jsx',
+        name: '百度',
+        icon: 'smile',
+        component: './MyUrl',
+      },
+    ],
+  },
+  {
     path: '/GetUrl',
     name: '采集管理',
     icon: 'IeOutlined',

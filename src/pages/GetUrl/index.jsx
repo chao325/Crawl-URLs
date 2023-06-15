@@ -19,7 +19,6 @@ import dayjs from 'dayjs';
 import SelectInput from '@/components/SelectInput/index.jsx';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
-
 import Edit from './Edit.jsx';
 
 const { RangePicker } = DatePicker;
@@ -27,7 +26,7 @@ const { Search } = Input;
 //用户对应
 
 const userId = {
-  0: '',
+  // 0: '',
   2: '阿图',
   3: 'uny',
   4: '小雪',
@@ -230,7 +229,6 @@ export default (props) => {
       },
     },
     {
-      //80+50+100+300+100+100+100
       title: '百度移动',
       dataIndex: 'aizhan_m',
       hideInTable: true,
@@ -368,6 +366,12 @@ export default (props) => {
         return defaultRender(_);
       },
     },
+    // {
+    //   title: '神马词数',
+    //   dataIndex: 'aizhan_term_num_sm',
+    //   search: false,
+    //   width: 100,
+    // },
     {
       title: '邮箱',
       dataIndex: 'email',
@@ -583,7 +587,7 @@ export default (props) => {
       <Button onClick={exportToExcel}>导出表格</Button>
       <ProTable
         onRow={(res, prs) => {
-          if (res?.uid != 0) {
+          if (res?.uid && Object.keys(userId).includes(res.uid)) {
             return {
               style: {
                 background: '#DDF6E8',
@@ -636,8 +640,10 @@ export default (props) => {
           filterType: 'light',
         }}
         // dateFormatter="string"
+
         pagination={{
-          pageSize: 30,
+          pageSize: 50,
+          pageSizeOptions: ['50', '200', '500', '1000'],
         }}
         rowKey="tid"
         headerTitle="批量操作"

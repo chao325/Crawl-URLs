@@ -8,7 +8,7 @@
 export default {
   dev: {
     '/site-site_api.html': {
-      target: 'https://we.lubida.com',
+      target: 'https://lubida.ikafan.com',
       changeOrigin: true,
       // pathRewrite: { '^': '' },
       pathRewrite: { '^': '' },
